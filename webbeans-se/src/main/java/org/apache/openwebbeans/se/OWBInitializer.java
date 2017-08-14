@@ -205,9 +205,9 @@ public class OWBInitializer extends SeContainerInitializer
     @Override
     public SeContainerInitializer addProperty(String key, Object value)
     {
-        if (String.class.isInstance(value))
+        if (String.class.isInstance(value) || Boolean.class.isInstance(value))
         {
-            properties.put(key, value);
+            properties.put(key, String.valueOf(value));
         }
         else
         {

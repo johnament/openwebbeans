@@ -150,6 +150,12 @@ public class OpenWebBeansConfiguration
     public static final String SCAN_ONLY_BEANS_XML_JARS = "org.apache.webbeans.scanBeansXmlOnly";
 
     /**
+     * When set to true, then implicit bean archive scanning is enabled
+     * otherwise, falls back to {@see SCAN_ONLY_BEANS_XML_JARS}
+     */
+    public static final String JAVAX_INJECT_SCAN_IMPLICIT = "javax.enterprise.inject.scan.implicit";
+
+    /**
      * a comma-separated list of fully qualified class names that should be ignored
      * when determining if a decorator matches its delegate.  These are typically added by
      * weaving or bytecode modification.
@@ -381,7 +387,10 @@ public class OpenWebBeansConfiguration
     public boolean scanOnlyBeansXmlJars()
     {
         String value = getProperty(SCAN_ONLY_BEANS_XML_JARS);
-        return "true".equalsIgnoreCase(value);
+        String specValue = getProperty(JAVAX_INJECT_SCAN_IMPLICIT);
+        String systemProperty = System.getProperty(JAVAX_INJECT_SCAN_IMPLICIT);
+        return !("true".equalsIgnoreCase(specValue) || "true".equalsIgnoreCase(systemProperty))
+                && "true".equalsIgnoreCase(value);
     }
 
     /**
