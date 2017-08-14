@@ -15,7 +15,7 @@
     the specific language governing permissions and limitations under the
     License.
 -->
-<suite name="JSR-346-TCK" verbose="2" configfailurepolicy="continue" >
+<suite name="JSR-365-TCK" verbose="2" configfailurepolicy="continue" >
 
     <listeners>
         <!-- Required - avoid randomly mixed test method execution -->
@@ -33,7 +33,7 @@
         -->
     </listeners>
 
-    <test name="JSR-346 TCK">
+    <test name="JSR-365 TCK">
         <groups>
             <run>
                 <exclude name="integration" />
