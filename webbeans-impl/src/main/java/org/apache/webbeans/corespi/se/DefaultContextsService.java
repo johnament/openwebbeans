@@ -21,10 +21,12 @@ package org.apache.webbeans.corespi.se;
 import java.lang.annotation.Annotation;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.BeforeDestroyed;
 import javax.enterprise.context.BusyConversationException;
 import javax.enterprise.context.ContextException;
 import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.context.Dependent;
+import javax.enterprise.context.Destroyed;
 import javax.enterprise.context.NonexistentConversationException;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
@@ -370,12 +372,15 @@ public class DefaultContextsService extends AbstractContextsService
     {
         if(applicationContext != null && !applicationContext.isDestroyed())
         {
+            webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
+                    new Object(), BeforeDestroyed.Literal.APPLICATION);
+
             applicationContext.destroy();
 
             // this is needed to get rid of ApplicationScoped beans which are cached inside the proxies...
             WebBeansContext.currentInstance().getBeanManagerImpl().clearCacheProxies();
             webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
-                new Object(), DestroyedLiteral.INSTANCE_APPLICATION_SCOPED);
+                new Object(), Destroyed.Literal.APPLICATION);
         }
     }
 
@@ -402,7 +407,8 @@ public class DefaultContextsService extends AbstractContextsService
             conversationContext.remove();
         }
 
-
+        webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
+                new Object(), BeforeDestroyed.Literal.REQUEST);
         if(requestContext.get() != null)
         {
             requestContext.get().destroy();   
@@ -412,12 +418,14 @@ public class DefaultContextsService extends AbstractContextsService
         requestContext.remove();
         RequestScopedBeanInterceptorHandler.removeThreadLocals();
         webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
-            new Object(), DestroyedLiteral.INSTANCE_REQUEST_SCOPED);
+            new Object(), Destroyed.Literal.REQUEST);
     }
 
     
     private void stopSessionContext()
     {
+        webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
+                new Object(), BeforeDestroyed.Literal.SESSION);
         if(sessionContext.get() != null)
         {
             sessionContext.get().destroy();   
@@ -427,7 +435,7 @@ public class DefaultContextsService extends AbstractContextsService
         sessionContext.remove();
         SessionScopedBeanInterceptorHandler.removeThreadLocals();
         webBeansContext.getBeanManagerImpl().fireContextLifecyleEvent(
-            new Object(), DestroyedLiteral.INSTANCE_SESSION_SCOPED);
+                new Object(), Destroyed.Literal.SESSION);
     }
 
     
