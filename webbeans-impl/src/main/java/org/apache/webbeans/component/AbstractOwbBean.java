@@ -18,6 +18,8 @@
  */
 package org.apache.webbeans.component;
 
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.spi.Context;
 import javax.enterprise.inject.spi.BeanAttributes;
 import org.apache.webbeans.config.OWBLogConst;
 import org.apache.webbeans.config.WebBeansContext;
@@ -124,7 +126,18 @@ public abstract class AbstractOwbBean<T>
             {
                 InjectionTarget<T> injectionTarget = (InjectionTarget<T>)producer;
                 injectionTarget.inject(instance, creationalContext);
+                Context currentContext = webBeansContext.getContextsService().getCurrentContext(RequestScoped.class);
+                boolean requiresStop = false;
+                if (currentContext == null)
+                {
+                    webBeansContext.getContextsService().startContext(RequestScoped.class, null);
+                    requiresStop = true;
+                }
                 injectionTarget.postConstruct(instance);
+                if (requiresStop)
+                {
+                    webBeansContext.getContextsService().endContext(RequestScoped.class, null);
+                }
             }
             if (getScope().equals(Dependent.class) && instance != null)
             {

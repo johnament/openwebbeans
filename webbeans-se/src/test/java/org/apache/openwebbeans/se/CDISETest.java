@@ -21,11 +21,13 @@ package org.apache.openwebbeans.se;
 import org.junit.Test;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CDISETest
 {
@@ -73,6 +75,46 @@ public class CDISETest
             assertTrue(container.select(Scanned.class).isResolvable());
         }
     }
+
+    @Test
+    public void context() {
+        SeContainerInitializer seContainerInitializer = SeContainerInitializer.newInstance();
+        try (SeContainer container = seContainerInitializer
+                .initialize()) {
+            TestBean testBean = container.select(TestBean.class).get();
+            assertTrue(testBean.isReqContextActiveDuringPostConstruct());
+            try{
+                testBean.fail();
+                fail();
+            }catch (ContextNotActiveException e){
+
+            }
+        }
+    }
+
+    @Test
+    public void testReferenceUsedAfterContainerShutdown() {
+        SeContainerInitializer seContainerInitializer = SeContainerInitializer.newInstance();
+        FooBean beanReferenceOutsideContainer = null;
+        try (SeContainer seContainer = seContainerInitializer.disableDiscovery().addBeanClasses(FooBean.class).initialize()) {
+            // obtain bean, use it and store
+            FooBean validBeanReference = seContainer.select(FooBean.class).get();
+            validBeanReference.ping();
+            beanReferenceOutsideContainer = validBeanReference;
+        }
+
+        // now use stored reference after container shutdown
+        // this should throw IllegalStateException
+        beanReferenceOutsideContainer.ping();
+    }
+
+    @ApplicationScoped
+    public static class FooBean {
+        public void ping() {
+            //no-op
+        }
+    }
+
 
     public static class ImNotScanned {
     }

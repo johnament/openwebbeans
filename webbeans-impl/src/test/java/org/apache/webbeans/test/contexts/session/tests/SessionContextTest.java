@@ -103,11 +103,11 @@ public class SessionContextTest extends AbstractUnitTest
         Assert.assertEquals(1, AppScopedBean.appContextInitializedEvent.size());
         Assert.assertEquals(2, AppScopedBean.sessionContextInitializedEvent.size());
         Assert.assertEquals(1, AppScopedBean.sessionContextDestroyedEvent.size());
-        Assert.assertEquals(2, AppScopedBean.requestContextInitializedEvent.size());
-        Assert.assertEquals(1, AppScopedBean.requestContextDestroyedEvent.size());
+        Assert.assertEquals(3, AppScopedBean.requestContextInitializedEvent.size());
+        Assert.assertEquals(2, AppScopedBean.requestContextDestroyedEvent.size());
 
         shutDownContainer();
-        Assert.assertEquals(2, AppScopedBean.requestContextDestroyedEvent.size());
+        Assert.assertEquals(4, AppScopedBean.requestContextDestroyedEvent.size());
         Assert.assertEquals(2, AppScopedBean.sessionContextDestroyedEvent.size());
 
         Assert.assertEquals(1, AppScopedBean.appContextDestroyedEvent.size());
